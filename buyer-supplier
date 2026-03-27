@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  overflow:hidden;
+  padding:24px;
+}
+
+.container{
+  display:flex;
+  align-items:center;
+  gap:0;
+  width:100%;
+  max-width:380px;
+}
+
+/* Cards */
+.card{
+  width:160px;
+  border-radius:16px;
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(20px);
+  flex-shrink:0;
+}
+.card.in{
+  animation:cardIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.card-stripe{
+  height:4px;
+}
+.card-body{
+  background:#0a0e24;
+  border:1px solid rgba(0,85,255,0.3);
+  border-top:none;
+  border-radius:0 0 16px 16px;
+  padding:20px;
+}
+.card-icon{
+  font-size:24px;
+  margin-bottom:12px;
+}
+.card-role{
+  font-size:16px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:4px;
+  letter-spacing:-0.2px;
+}
+.card-portal{
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:rgba(77,225,255,0.5);
+  margin-bottom:14px;
+  font-weight:500;
+}
+.card-divider{
+  height:1px;
+  background:rgba(0,85,255,0.2);
+  margin-bottom:14px;
+}
+.card-desc{
+  font-size:11px;
+  line-height:1.7;
+  color:rgba(255,255,255,0.45);
+}
+
+.card-buyer .card-stripe{ background:linear-gradient(90deg,#0055FF,#4DE1FF); }
+.card-buyer .card-body{ border-color:rgba(0,85,255,0.35); }
+
+.card-supplier .card-stripe{ background:linear-gradient(90deg,#4DE1FF,#0055FF); }
+.card-supplier .card-body{ border-color:rgba(77,225,255,0.3); }
+
+/* Connector */
+.connector{
+  flex:1;
+  height:40px;
+  position:relative;
+  opacity:0;
+}
+.connector.in{ animation: fadeIn 0.4s ease-out 0.7s forwards; }
+.connector svg{ width:100%; height:100%; overflow:visible; }
+
+/* Lendo center node */
+.lendo-node{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:40px;height:40px;
+  border-radius:50%;
+  background:#090419;
+  border:1.5px solid #0055FF;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;
+  z-index:2;
+}
+.lendo-node.in{ animation: nodeIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.8s forwards; }
+.lendo-label{
+  font-size:7px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  color:#4DE1FF;
+  text-transform:uppercase;
+}
+
+/* Particle dots on line */
+.dot{
+  position:absolute;
+  width:5px;height:5px;
+  border-radius:50%;
+  background:#4DE1FF;
+  top:50%;
+  transform:translateY(-50%);
+  opacity:0;
+}
+.dot-1{ animation: moveDot1 2s ease-in-out 1.2s infinite; }
+.dot-2{ animation: moveDot2 2s ease-in-out 1.8s infinite; }
+
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0} to{opacity:1}
+}
+@keyframes nodeIn{
+  from{opacity:0;transform:translate(-50%,-50%) scale(0.5)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes moveDot1{
+  0%{left:8%;opacity:0}
+  10%{opacity:1}
+  45%{left:42%;opacity:1}
+  55%{left:42%;opacity:0}
+  100%{left:42%;opacity:0}
+}
+@keyframes moveDot2{
+  0%{left:58%;opacity:0}
+  10%{opacity:1}
+  45%{left:92%;opacity:1}
+  55%{left:92%;opacity:0}
+  100%{left:92%;opacity:0}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Buyer card -->
+  <div class="card card-buyer" id="c-buyer">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-icon">🏢</div>
+      <div class="card-role">Buyer Portal</div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="connector" id="connector">
+    <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+      <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(0,85,255,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+    </svg>
+    <div id="dot" style="position:absolute;width:6px;height:6px;border-radius:50%;background:#4DE1FF;top:50%;transform:translateY(-50%);left:0;opacity:0;"></div>
+  </div>
+
+  <!-- Supplier card -->
+  <div class="card card-supplier" id="c-supplier">
+    <div class="card-stripe"></div>
+    <div class="card-body">
+      <div class="card-icon">🏭</div>
+      <div class="card-role">Supplier Portal</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+setTimeout(()=> document.getElementById('c-buyer').classList.add('in'), 200);
+setTimeout(()=> document.getElementById('c-supplier').classList.add('in'), 450);
+setTimeout(()=>{
+  document.getElementById('connector').classList.add('in');
+  animateDot();
+}, 700);
+
+function animateDot(){
+  const dot = document.getElementById('dot');
+  const conn = document.getElementById('connector');
+  const w = conn.offsetWidth;
+  let start = null;
+  const dur = 1800;
+  function step(ts){
+    if(!start) start = ts;
+    const p = Math.min((ts-start)/dur, 1);
+    dot.style.left = (p * w) + 'px';
+    dot.style.opacity = p < 0.05 ? p/0.05 : p > 0.95 ? (1-p)/0.05 : 1;
+    if(p < 1){ requestAnimationFrame(step); }
+    else{ setTimeout(animateDot, 400); }
+  }
+  requestAnimationFrame(step);
+}
+</script>
+</body>
+</html>
