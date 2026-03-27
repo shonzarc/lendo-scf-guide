@@ -17,19 +17,18 @@ body{
 
 .container{
   display:flex;
+  flex-direction:column;
   align-items:center;
   gap:0;
-  max-width:380px;
-  width:100%;
+  width:200px;
 }
 
 .card{
-  width:160px;
+  width:200px;
   border-radius:16px;
   overflow:hidden;
   opacity:0;
   transform:translateY(20px);
-  flex-shrink:0;
 }
 .card.in{
   animation:cardIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
@@ -48,7 +47,6 @@ body{
   font-weight:700;
   color:#fff;
   letter-spacing:-0.2px;
-  white-space:nowrap;
 }
 
 .card-buyer .card-stripe{ background:linear-gradient(90deg,#0055FF,#4DE1FF); }
@@ -57,13 +55,13 @@ body{
 .card-supplier .card-body{ border-color:rgba(77,225,255,0.3); }
 
 .connector{
-  flex:1;
-  height:40px;
+  width:2px;
+  height:48px;
   position:relative;
+  background:rgba(0,85,255,0.2);
   opacity:0;
 }
 .connector.in{ animation:fadeIn 0.4s ease-out 0.7s forwards; }
-.connector svg{ width:100%; height:100%; overflow:visible; }
 
 @keyframes cardIn{
   from{opacity:0;transform:translateY(20px)}
@@ -86,10 +84,7 @@ body{
   </div>
 
   <div class="connector" id="connector">
-    <svg viewBox="0 0 100 40" preserveAspectRatio="none">
-      <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(0,85,255,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
-    </svg>
-    <div id="dot" style="position:absolute;width:6px;height:6px;border-radius:50%;background:#4DE1FF;top:50%;transform:translateY(-50%);left:0;opacity:0;"></div>
+    <div id="dot" style="position:absolute;width:6px;height:6px;border-radius:50%;background:#4DE1FF;left:50%;transform:translateX(-50%);top:0;opacity:0;"></div>
   </div>
 
   <div class="card card-supplier" id="c-supplier">
@@ -112,13 +107,13 @@ setTimeout(()=>{
 function animateDot(){
   const dot = document.getElementById('dot');
   const conn = document.getElementById('connector');
-  const w = conn.offsetWidth;
+  const h = conn.offsetHeight;
   let start = null;
-  const dur = 1800;
+  const dur = 1600;
   function step(ts){
     if(!start) start = ts;
     const p = Math.min((ts-start)/dur, 1);
-    dot.style.left = (p*w)+'px';
+    dot.style.top = (p*h)+'px';
     dot.style.opacity = p<0.05?p/0.05:p>0.95?(1-p)/0.05:1;
     if(p<1){ requestAnimationFrame(step); }
     else{ setTimeout(animateDot, 400); }
