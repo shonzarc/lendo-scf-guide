@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Lendo SCF — Animated Flow</title>
+<style>
+  body { margin: 0; padding: 32px; background: #090419; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<svg width="680" height="395" viewBox="0 0 680 395" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:12px;background:#090419">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#0055FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#4DE1FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <text x="28" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#4DE1FF" letter-spacing="0.12em">LENDO · SCF FLOW</text>
+
+  <!-- Paths -->
+  <path id="p1" d="M160 148 L280 148" fill="none" stroke="#0055FF" stroke-width="1" stroke-opacity="0.6" marker-end="url(#a)"/>
+  <path id="p2" d="M280 164 L160 164" fill="none" stroke="#4DE1FF" stroke-width="1" stroke-opacity="0.6" marker-end="url(#b)"/>
+  <path id="p3" d="M340 182 L340 270" fill="none" stroke="#4DE1FF" stroke-width="1" stroke-opacity="0.6" marker-end="url(#b)"/>
+  <path id="p4" d="M356 270 L356 182" fill="none" stroke="#4DE1FF" stroke-width="1" stroke-opacity="0.6" marker-end="url(#b)"/>
+  <path id="p5" d="M580 182 L580 296 L400 296" fill="none" stroke="#0055FF" stroke-width="1" stroke-opacity="0.6" marker-end="url(#a)"/>
+
+  <!-- Edge labels -->
+  <text x="220" y="141" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="rgba(255,255,255,0.6)" text-anchor="middle">invoices</text>
+  <text x="220" y="177" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#4DE1FF" fill-opacity="0.8" text-anchor="middle">early payment</text>
+  <text x="326" y="229" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#4DE1FF" fill-opacity="0.8" text-anchor="end">funding request</text>
+  <text x="364" y="229" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="rgba(255,255,255,0.6)" text-anchor="start">capital</text>
+  <text x="520" y="290" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="rgba(255,255,255,0.6)" text-anchor="middle">settlement</text>
+
+  <!-- Nodes -->
+  <rect x="40" y="130" width="120" height="56" rx="8" fill="#0C0E2A" stroke="#0055FF" stroke-width="0.75"/>
+  <text x="100" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="central">Supplier</text>
+  <text x="100" y="171" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="rgba(255,255,255,0.4)" text-anchor="middle">receives early pay</text>
+
+  <rect x="280" y="130" width="120" height="56" rx="8" fill="#0055FF" stroke="#4DE1FF" stroke-width="0.75"/>
+  <text x="340" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="central">Lendo</text>
+  <text x="340" y="172" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="rgba(77,225,255,0.9)" text-anchor="middle">orchestrates</text>
+
+  <rect x="520" y="130" width="120" height="56" rx="8" fill="#0C0E2A" stroke="#0055FF" stroke-width="0.75"/>
+  <text x="580" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="central">Buyer</text>
+  <text x="580" y="171" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="rgba(255,255,255,0.4)" text-anchor="middle">settles at due date</text>
+
+  <rect x="280" y="270" width="120" height="56" rx="8" fill="#0C0E2A" stroke="#4DE1FF" stroke-width="0.75"/>
+  <text x="340" y="290" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="central">Funder</text>
+  <text x="340" y="311" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="rgba(255,255,255,0.4)" text-anchor="middle">provides capital</text>
+
+  <!-- Animated dots -->
+  <circle r="3.5" fill="#0055FF">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="0s"><mpath href="#p1"/></animateMotion>
+  </circle>
+  <circle r="3.5" fill="#0055FF" opacity="0.45">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="1.5s"><mpath href="#p1"/></animateMotion>
+  </circle>
+  <circle r="3.5" fill="#4DE1FF">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="0.5s"><mpath href="#p2"/></animateMotion>
+  </circle>
+  <circle r="3.5" fill="#4DE1FF">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="0s"><mpath href="#p3"/></animateMotion>
+  </circle>
+  <circle r="3.5" fill="#4DE1FF" opacity="0.6">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="1.5s"><mpath href="#p4"/></animateMotion>
+  </circle>
+  <circle r="3.5" fill="#0055FF" opacity="0.8">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="1s"><mpath href="#p5"/></animateMotion>
+  </circle>
+
+  <!-- Footer -->
+  <rect x="0" y="362" width="680" height="33" fill="rgba(0,85,255,0.1)"/>
+  <line x1="0" y1="362" x2="680" y2="362" stroke="#0055FF" stroke-width="0.5" stroke-opacity="0.5"/>
+  <text x="34" y="383" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="rgba(255,255,255,0.35)">Before SCF —</text>
+  <text x="118" y="383" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="rgba(255,255,255,0.5)">Supplier waits 60–120 days for payment</text>
+  <text x="390" y="383" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#4DE1FF">After SCF —</text>
+  <text x="466" y="383" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="rgba(255,255,255,0.5)">Supplier gets paid in days</text>
+</svg>
+</body>
+</html>
