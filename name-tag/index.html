@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  overflow:hidden;
+  gap:28px;
+  padding:0 20px;
+  margin-top:0px;
+  padding-top:48px;
+}
+
+.scene{
+  position:relative;
+  width:340px;
+  height:160px;
+}
+
+.badge-new{
+  position:absolute;
+  top:0;left:0;
+  width:340px;
+  border-radius:14px;
+  overflow:hidden;
+  z-index:1;
+  box-shadow:0 8px 36px rgba(0,85,255,0.2);
+}
+
+.badge-old-wrap{
+  position:absolute;
+  top:0;left:0;
+  width:340px;
+  border-radius:14px;
+  overflow:hidden;
+  z-index:2;
+}
+
+.stripe{
+  background:#0055FF;
+  padding:11px 0;
+  text-align:center;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:3.5px;
+  color:rgba(255,255,255,0.92);
+  text-transform:uppercase;
+}
+
+.bdy{
+  background:#fff;
+  padding:18px 26px 22px;
+}
+
+.hi{
+  font-size:11px;
+  color:#bbb;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:5px;
+}
+
+.nm{
+  font-size:46px;
+  font-weight:700;
+  line-height:1;
+  letter-spacing:-0.5px;
+}
+
+#foldCv{
+  position:absolute;
+  top:0;left:0;
+  pointer-events:none;
+  z-index:3;
+}
+
+.sub{
+  font-size:9px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:rgba(77,225,255,0);
+  text-align:center;
+}
+@keyframes fadeSub{
+  to{color:rgba(77,225,255,0.6)}
+}
+.sub.on{ animation:fadeSub 0.55s ease-out forwards; }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="badge-new">
+    <div class="stripe">Lendo Platform</div>
+    <div class="bdy">
+      <div class="hi">Hi, I'm an</div>
+      <div class="nm" style="color:#0055FF">Organization</div>
+    </div>
+  </div>
+
+  <div class="badge-old-wrap" id="wrap">
+    <div>
+      <div class="stripe">Lendo Platform</div>
+      <div class="bdy">
+        <div class="hi">Hi, I'm a</div>
+        <div class="nm" style="color:#090419">Borrower</div>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="foldCv" width="340" height="160"></canvas>
+</div>
+
+<div class="sub" id="sub">Reflected across the Admin platform</div>
+
+<script>
+const wrap = document.getElementById('wrap');
+const cv   = document.getElementById('foldCv');
+const ctx  = cv.getContext('2d');
+const sub  = document.getElementById('sub');
+const W = 340, H = 160;
+let timers = [], raf = null;
+
+function ease(t){ return t*t*t; }
+
+function setClip(t){
+  if(t <= 0){ wrap.style.clipPath = 'none'; return; }
+  if(t >= 1){ wrap.style.clipPath = 'polygon(0 0,0 0,0 0)'; return; }
+  const rY = (1-t)*100;
+  const bX = (1-t)*100;
+  wrap.style.clipPath = `polygon(0% 0%, 100% 0%, 100% ${rY}%, ${bX}% 100%, 0% 100%)`;
+}
+
+function drawFold(t){
+  ctx.clearRect(0,0,W,H);
+  if(t<=0||t>=1) return;
+  const rY = (1-t)*H;
+  const bX = (1-t)*W;
+  const dx = bX-W, dy = H-rY;
+  const len = Math.sqrt(dx*dx+dy*dy);
+  const nx = -dy/len, ny = dx/len;
+  const sw = 22;
+  ctx.beginPath();
+  ctx.moveTo(W, rY);
+  ctx.lineTo(bX, H);
+  ctx.lineTo(bX + nx*sw, H + ny*sw);
+  ctx.lineTo(W  + nx*sw, rY + ny*sw);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(W, rY, W+nx*sw, rY+ny*sw);
+  grad.addColorStop(0,'rgba(0,0,0,0.18)');
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(W, rY);
+  ctx.lineTo(bX, H);
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+}
+
+function reset(){
+  timers.forEach(clearTimeout); timers=[];
+  if(raf) cancelAnimationFrame(raf); raf=null;
+  wrap.style.clipPath = 'none';
+  ctx.clearRect(0,0,W,H);
+  sub.className = 'sub';
+}
+
+function play(){
+  reset();
+  timers.push(setTimeout(()=>{
+    const dur=500, t0=performance.now();
+    function tick(now){
+      const raw = Math.min((now-t0)/dur, 1);
+      const t = ease(raw);
+      setClip(t);
+      drawFold(t);
+      if(raw<1){ raf=requestAnimationFrame(tick); }
+      else{
+        sub.classList.add('on');
+        timers.push(setTimeout(play, 3000));
+      }
+    }
+    raf = requestAnimationFrame(tick);
+  }, 1300));
+}
+
+play();
+</script>
+</body>
+</html>
