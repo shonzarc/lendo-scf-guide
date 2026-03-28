@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  overflow:hidden;
+  padding:32px 40px 0;
+}
+
+.track{
+  position:relative;
+  width:100%;
+  max-width:700px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:44px;
+}
+
+.line-wrap{
+  position:absolute;
+  top:28px;left:0;right:0;
+  height:1px;
+  background:rgba(0,85,255,0.15);
+}
+
+/* Completed fill */
+.line-fill{
+  position:absolute;
+  top:0;left:0;
+  height:1px;
+  width:0%;
+  background:linear-gradient(90deg,#0055FF,#4DE1FF);
+  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Progress fill — animates within current segment */
+.line-progress{
+  position:absolute;
+  top:0;
+  height:1px;
+  width:0%;
+  background:rgba(77,225,255,0.35);
+}
+
+.dots-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  position:relative;
+  z-index:2;
+  height:56px;
+}
+
+.node{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  position:relative;
+  cursor:pointer;
+}
+
+.dot{
+  width:18px;height:18px;
+  border-radius:50%;
+  background:#090419;
+  border:1.5px solid rgba(0,85,255,0.25);
+  transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative;
+  z-index:2;
+}
+.node:hover .dot{
+  border-color:rgba(0,85,255,0.55);
+  background:rgba(0,85,255,0.1);
+}
+.node.done .dot{
+  background:rgba(0,85,255,0.3);
+  border-color:rgba(0,85,255,0.5);
+}
+.node.active .dot{
+  width:52px;height:52px;
+  background:#0055FF;
+  border-color:#4DE1FF;
+  border-width:2px;
+  box-shadow:0 0 0 6px rgba(0,85,255,0.15),0 0 24px rgba(0,85,255,0.35);
+}
+
+.dot-num{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:0px;
+  font-weight:700;
+  color:#fff;
+  transition:font-size 0.3s ease;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.node.active .dot-num{ font-size:14px; }
+
+.oneliner{
+  text-align:center;
+  min-height:72px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  width:100%;
+}
+.ol-pill{
+  font-size:9px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:rgba(77,225,255,0.5);
+  font-weight:500;
+  opacity:0;
+  transform:translateY(6px);
+  transition:opacity 0.3s ease, transform 0.3s ease;
+}
+.ol-text{
+  font-size:18px;
+  font-weight:500;
+  color:rgba(255,255,255,0.75);
+  line-height:1.65;
+  max-width:520px;
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity 0.3s ease 0.06s, transform 0.3s ease 0.06s;
+}
+.ol-pill.show,.ol-text.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="track" id="track">
+  <div class="line-wrap">
+    <div class="line-fill" id="fill"></div>
+    <div class="line-progress" id="progress"></div>
+  </div>
+  <div class="dots-row" id="dots"></div>
+  <div class="oneliner">
+    <div class="ol-pill" id="ol-pill"></div>
+    <div class="ol-text" id="ol-text"></div>
+  </div>
+</div>
+
+<script>
+const stages = [
+  {label:'Onboarding',    text:'Orgs are approved and assigned to SCF.'},
+  {label:'Program setup', text:'Program terms, limits, and fees are configured.'},
+  {label:'Suppliers in',  text:'Suppliers are enrolled and contracts are signed.'},
+  {label:'Invoices in',   text:'Invoices are uploaded and approved by the admin.'},
+  {label:'Early payment', text:'Supplier requests payment. Funder disburses funds.'},
+  {label:'Settlement',    text:'Buyer settles at due date. Cycle completes.'},
+];
+
+const BASE_DURATION = 5000;
+const dotsEl   = document.getElementById('dots');
+const fillEl   = document.getElementById('fill');
+const progEl   = document.getElementById('progress');
+const olPill   = document.getElementById('ol-pill');
+const olText   = document.getElementById('ol-text');
+
+stages.forEach((s,i)=>{
+  const node = document.createElement('div');
+  node.className='node';
+  node.id=`n${i}`;
+  node.innerHTML=`<div class="dot"><span class="dot-num">${i+1}</span></div>`;
+  node.onclick=()=>jumpTo(i);
+  dotsEl.appendChild(node);
+});
+
+function getDotPct(i){
+  const dot = document.getElementById(`n${i}`).querySelector('.dot');
+  const rowRect = dotsEl.getBoundingClientRect();
+  const dotRect = dot.getBoundingClientRect();
+  const cx = (dotRect.left + dotRect.width/2) - rowRect.left;
+  return (cx / rowRect.width) * 100;
+}
+
+let current = 0;
+let timer = null;
+let progRaf = null;
+let progStart = null;
+
+function clearTimers(){
+  if(timer) clearTimeout(timer);
+  if(progRaf) cancelAnimationFrame(progRaf);
+  timer = null; progRaf = null; progStart = null;
+}
+
+function activate(i, autoplay=true){
+  current = i;
+
+  stages.forEach((_,j)=>{
+    const n = document.getElementById(`n${j}`);
+    n.classList.remove('active','done');
+    if(j<i) n.classList.add('done');
+    if(j===i) n.classList.add('active');
+  });
+
+  // Completed fill to current dot
+  setTimeout(()=>{ fillEl.style.width = getDotPct(i)+'%'; }, 50);
+
+  // Fade text
+  olPill.classList.remove('show');
+  olText.classList.remove('show');
+  setTimeout(()=>{
+    olPill.textContent=`Stage 0${i+1} — ${stages[i].label}`;
+    olText.textContent=stages[i].text;
+    olPill.classList.add('show');
+    olText.classList.add('show');
+  }, 300);
+
+  if(autoplay) scheduleNext(i);
+}
+
+function scheduleNext(i){
+  clearTimers();
+  const dur = BASE_DURATION;
+
+  // Animate progress line from current dot to next dot
+  const fromPct = getDotPct(i);
+  const toPct   = i < stages.length-1 ? getDotPct(i+1) : fromPct;
+  progEl.style.left  = fromPct+'%';
+  progEl.style.width = '0%';
+
+  progStart = performance.now();
+  function animProg(ts){
+    const p = Math.min((ts - progStart) / dur, 1);
+    progEl.style.width = ((toPct - fromPct) * p) + '%';
+    if(p < 1){ progRaf = requestAnimationFrame(animProg); }
+  }
+  progRaf = requestAnimationFrame(animProg);
+
+  if(i < stages.length - 1){
+    timer = setTimeout(()=>{
+      progEl.style.width = '0%';
+      activate(i+1);
+    }, dur);
+  } else {
+    // Last node — pause then restart
+    timer = setTimeout(()=>{
+      progEl.style.width = '0%';
+      progEl.style.left  = '0%';
+      fillEl.style.width = '0%';
+      olPill.classList.remove('show');
+      olText.classList.remove('show');
+      stages.forEach((_,j)=> document.getElementById(`n${j}`).classList.remove('active','done'));
+      setTimeout(()=> activate(0), 600);
+    }, dur + 1000);
+  }
+}
+
+function jumpTo(i){
+  clearTimers();
+  activate(i, true);
+}
+
+setTimeout(()=> activate(0), 400);
+</script>
+</body>
+</html>
