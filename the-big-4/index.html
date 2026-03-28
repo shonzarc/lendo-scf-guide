@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  padding:28px 24px;
+  gap:24px;
+}
+
+/* Hint text */
+.hint{
+  font-size:10px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:rgba(77,225,255,0.4);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  animation:pulse 2s ease-in-out infinite;
+}
+.hint-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#4DE1FF;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:0.4} 50%{opacity:1}
+}
+
+/* Role buttons */
+.roles{
+  display:flex;
+  gap:10px;
+}
+.role-btn{
+  padding:8px 20px;
+  border-radius:24px;
+  border:1px solid rgba(0,85,255,0.3);
+  background:transparent;
+  color:rgba(255,255,255,0.4);
+  font-size:12px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all 0.25s ease;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  letter-spacing:0.2px;
+}
+.role-btn:hover{
+  border-color:rgba(0,85,255,0.6);
+  color:rgba(255,255,255,0.75);
+}
+.role-btn.active{
+  background:#0055FF;
+  border-color:#0055FF;
+  color:#fff;
+}
+
+/* Card */
+.card{
+  width:100%;
+  max-width:620px;
+  border-radius:18px;
+  border:1px solid rgba(0,85,255,0.3);
+  background:#080e28;
+  overflow:hidden;
+  transition:border-color 0.3s;
+}
+.card-stripe{
+  height:4px;
+  background:linear-gradient(90deg,#0055FF,#4DE1FF);
+  transition:opacity 0.3s;
+}
+.card-inner{
+  padding:32px 36px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-height:180px;
+}
+.card-top{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.card-icon{font-size:28px;}
+.card-titles{}
+.card-role{
+  font-size:22px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:-0.3px;
+  line-height:1;
+  margin-bottom:4px;
+}
+.card-portal{
+  font-size:10px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:rgba(77,225,255,0.6);
+  font-weight:500;
+}
+.card-divider{
+  height:1px;
+  background:rgba(0,85,255,0.2);
+}
+.card-desc{
+  font-size:13px;
+  line-height:1.75;
+  color:rgba(255,255,255,0.55);
+}
+
+/* Fade transition */
+.card-inner{
+  opacity:1;
+  transition:opacity 0.2s ease;
+}
+.card-inner.fading{opacity:0;}
+</style>
+</head>
+<body>
+
+<div class="hint">
+  <div class="hint-dot"></div>
+  Select a role to explore
+</div>
+
+<div class="roles">
+  <button class="role-btn active" onclick="select(0)">🛡️ Admin</button>
+  <button class="role-btn" onclick="select(1)">🏢 Buyer</button>
+  <button class="role-btn" onclick="select(2)">🏭 Supplier</button>
+  <button class="role-btn" onclick="select(3)">🏦 Funder</button>
+</div>
+
+<div class="card" id="card">
+  <div class="card-stripe"></div>
+  <div class="card-inner" id="inner">
+    <div class="card-top">
+      <div class="card-icon" id="icon">🛡️</div>
+      <div class="card-titles">
+        <div class="card-role" id="role">Admin</div>
+        <div class="card-portal" id="portal">Admin Panel</div>
+      </div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-desc" id="desc">Configures the platform, approves organizations, and manages the full invoice and program lifecycle. Nothing moves without the admin.</div>
+  </div>
+</div>
+
+<script>
+const data = [
+  {icon:'🛡️', role:'Admin',    portal:'Admin Panel',      desc:'The operational backbone of the entire SCF platform. Admins are responsible for onboarding organizations, configuring programs, and gatekeeping every stage of the invoice lifecycle. No invoice reaches a Supplier without admin approval. No Supplier enters a program without admin clearance. They sit at the center of every transaction — not as a participant, but as the system that makes participation possible.'},
+  {icon:'🏢', role:'Buyer',    portal:'Buyer Portal',     desc:'Typically a large corporate with an extensive supplier base. In SCF, the Buyer anchors the entire program — their creditworthiness is what makes early payment possible for suppliers. They define the financing terms, upload invoices, and are ultimately responsible for settling at the original due date. Offering SCF to their suppliers is a strategic move: it strengthens relationships, reduces supply chain risk, and costs the Buyer nothing extra.'},
+  {icon:'🏭', role:'Supplier', portal:'Supplier Portal',  desc:'Usually an SME supplying goods or services to a large corporate. Suppliers traditionally sit at the end of long payment cycles — delivering value upfront and waiting months to see cash. SCF changes that equation entirely. Once enrolled in a Buyer\'s program and their invoices are approved, a Supplier can request early payment on their own terms. The discount they pay is typically far lower than alternative financing options, making it one of the most cost-effective liquidity tools available to them.'},
+  {icon:'🏦', role:'Funder',   portal:'Investor Portal',  desc:'The capital provider that makes the entire flow work. When a Supplier requests early payment, it\'s the Funder who disburses the funds — purchasing the receivable at a discount and collecting the full invoice value from the Buyer at maturity. Funders take on the credit risk of the Buyer, not the Supplier, which makes SCF an attractive and relatively low-risk asset class. On Lendo, most funder interactions are managed through the admin side, with the Investor Portal supporting profile and reporting needs.'},
+];
+
+const btns = document.querySelectorAll('.role-btn');
+const inner = document.getElementById('inner');
+
+function select(i){
+  btns.forEach((b,j)=> b.classList.toggle('active', j===i));
+  inner.classList.add('fading');
+  setTimeout(()=>{
+    const d = data[i];
+    document.getElementById('icon').textContent = d.icon;
+    document.getElementById('role').textContent = d.role;
+    document.getElementById('portal').textContent = d.portal;
+    document.getElementById('desc').textContent = d.desc;
+    inner.classList.remove('fading');
+  }, 200);
+}
+
+// No auto-cycle — always starts on Admin
+</script>
+</body>
+</html>
