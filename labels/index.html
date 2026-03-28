@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  padding:0;
+  align-items:flex-start;}
+.wrap{
+  width:100%;max-width:580px;
+  display:flex;flex-direction:column;gap:16px;
+}
+.change{
+  background:#0a0e24;
+  border:1px solid rgba(0,85,255,0.2);
+  border-radius:12px;
+  padding:18px 20px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.change-title{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,0.25);
+}
+.change-row{
+  display:flex;align-items:center;gap:12px;
+}
+.val{
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:12px;font-weight:500;
+  white-space:nowrap;
+  transition:all 0.5s;
+}
+.val.old{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.3);
+}
+.val.new{
+  background:rgba(0,85,255,0.12);
+  border:1px solid rgba(0,85,255,0.35);
+  color:#fff;
+}
+.val.new.highlight{
+  background:rgba(77,225,255,0.12);
+  border-color:#4DE1FF;
+  color:#4DE1FF;
+}
+.arr{
+  font-size:14px;
+  color:rgba(0,85,255,0.4);
+  flex-shrink:0;
+}
+/* for the SCF tab appearing */
+.tab-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.fake-tab{
+  padding:5px 12px;
+  border-radius:6px;
+  font-size:11px;
+  color:rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.07);
+  background:rgba(255,255,255,0.02);
+}
+.fake-tab.active{
+  color:rgba(255,255,255,0.6);
+  border-color:rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.05);
+}
+.fake-tab.new{
+  opacity:0;
+  color:#4DE1FF;
+  border-color:rgba(77,225,255,0.4);
+  background:rgba(77,225,255,0.08);
+  transition:opacity 0.6s;
+}
+.fake-tab.new.show{opacity:1;}
+.new-badge{
+  font-size:8px;font-weight:700;letter-spacing:0.5px;
+  background:rgba(77,225,255,0.15);color:#4DE1FF;
+  padding:1px 5px;border-radius:4px;margin-left:4px;
+}
+.note{
+  font-size:10px;color:rgba(255,255,255,0.25);
+  padding-top:6px;border-top:1px solid rgba(255,255,255,0.05);
+  line-height:1.6;
+}
+.note span{color:rgba(77,225,255,0.7);}
+</style>
+</head>
+<body>
+<div class="wrap" style="margin-top:36px">
+
+  <!-- Change 2: Facility Info → Product Configuration -->
+  <div class="change">
+    <div class="change-title">Organization profile tab</div>
+    <div class="change-row">
+      <div class="val old">Facility Info</div>
+      <div class="arr">→</div>
+      <div class="val new" id="v2">Product Configuration</div>
+    </div>
+  </div>
+
+  <!-- Change 3: SCF Programs tab appears -->
+  <div class="change">
+    <div class="change-title">New tab inside Product Configuration</div>
+    <div class="tab-row">
+      <div class="fake-tab active">Facility Info</div>
+      <div class="fake-tab new" id="scf-tab">SCF Programs <span class="new-badge">new</span></div>
+    </div>
+    <div class="note" id="scf-note" style="opacity:0;transition:opacity 0.5s">
+      Appears only when <span>Supply Chain Financing</span> is assigned as a product to the organization.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function go(){
+  // reset
+  document.getElementById('v2').className='val new';
+  document.getElementById('scf-tab').classList.remove('show');
+  document.getElementById('scf-note').style.opacity=0;
+  await sl(400);
+
+  // step 1: highlight tab rename
+  await sl(800);
+  document.getElementById('v2').className='val new highlight';
+  await sl(1000);
+  document.getElementById('v2').className='val new';
+
+  // step 3: SCF tab appears
+  await sl(600);
+  document.getElementById('scf-tab').classList.add('show');
+  await sl(400);
+  document.getElementById('scf-note').style.opacity=1;
+
+  await sl(2800);
+  go();
+}
+
+go();
+</script>
+</body>
+</html>
