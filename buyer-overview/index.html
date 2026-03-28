@@ -86,21 +86,18 @@ SLIDES.forEach((s,i)=>{
   slide.className='slide'+(s.full?' full':'')+(i===0?' active':'');
   slide.id='sl-'+i;
 
-  const dz=document.createElement('div');
-  dz.className='dz';dz.id='dz-'+i;
-  dz.innerHTML=`<div class="dz-icon">⬆</div><div class="dz-t">Slide ${i+1} — ${s.label}</div><div class="dz-s">click or drag to load</div>`;
-
   const img=document.createElement('img');
-  img.id='im-'+i;img.style.display='none';
+  img.id='im-'+i;
+  img.src='slide'+(i+1)+'.png';
+  img.style.display='block';
+  if(i===0){
+    img.onload=function(){
+      const ratio=img.naturalHeight/img.naturalWidth;
+      stage.style.height=Math.round(stage.offsetWidth*ratio)+'px';
+    };
+  }
 
-  const fi=document.createElement('input');
-  fi.type='file';fi.accept='image/*';fi.style.display='none';
-  fi.addEventListener('change',function(){loadF(i,this.files[0]);});
-  dz.addEventListener('click',function(){fi.click();});
-  slide.addEventListener('dragover',function(e){e.preventDefault();});
-  slide.addEventListener('drop',function(e){e.preventDefault();const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadF(i,f);});
-
-  slide.appendChild(dz);slide.appendChild(img);slide.appendChild(fi);
+  slide.appendChild(img);
   stage.insertBefore(slide,document.getElementById('stage').querySelector('.zoom-bar'));
 
   const d=document.createElement('div');
@@ -110,24 +107,6 @@ SLIDES.forEach((s,i)=>{
 });
 
 updateUI();
-
-function loadF(idx,file){
-  const r=new FileReader();
-  r.onload=function(e){
-    document.getElementById('dz-'+idx).style.display='none';
-    const img=document.getElementById('im-'+idx);
-    img.src=e.target.result;
-    img.style.display='block';
-    if(idx===0){
-      img.onload=function(){
-        const ratio=img.naturalHeight/img.naturalWidth;
-        const w=stage.offsetWidth;
-        stage.style.height=Math.round(w*ratio)+'px';
-      };
-    }
-  };
-  r.readAsDataURL(file);
-}
 
 function applyT(){
   const img=document.getElementById('im-'+cur);
