@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  min-height:100vh;
+  display:flex;align-items:flex-start;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  padding:32px 20px 28px;
+}
+.wrap{width:100%;max-width:620px;display:flex;flex-direction:column;gap:16px;}
+
+.card{
+  background:#0a0e24;
+  border:1px solid rgba(0,85,255,0.2);
+  border-radius:12px;
+  padding:20px 22px;
+}
+.card-title{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(77,225,255,0.5);margin-bottom:14px;
+}
+.curve-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:10px;
+}
+.tenor-field{display:flex;flex-direction:column;gap:5px;}
+.tenor-label{
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:rgba(255,255,255,0.25);text-align:center;
+}
+.tenor-input{
+  width:100%;
+  background:#060c1e;
+  border:1px solid rgba(0,85,255,0.2);
+  border-radius:8px;
+  padding:8px 6px;
+  font-size:13px;font-weight:500;
+  color:#fff;text-align:center;
+  font-family:inherit;
+  transition:border-color 0.2s;
+  -moz-appearance:textfield;
+}
+.tenor-input::-webkit-inner-spin-button,
+.tenor-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.tenor-input:focus{outline:none;border-color:#0055FF;}
+.tenor-suffix{
+  font-size:9px;color:rgba(255,255,255,0.2);
+  text-align:center;margin-top:1px;
+}
+
+.invoice-grid{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;
+}
+.input-field{display:flex;flex-direction:column;gap:5px;}
+.input-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.25);}
+.input-wrap{position:relative;}
+.input-wrap input{
+  width:100%;
+  background:#060c1e;
+  border:1px solid rgba(0,85,255,0.2);
+  border-radius:8px;
+  padding:9px 28px 9px 10px;
+  font-size:13px;font-weight:500;color:#fff;
+  font-family:inherit;
+  transition:border-color 0.2s;
+  -moz-appearance:textfield;
+}
+.input-wrap input::-webkit-inner-spin-button,
+.input-wrap input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.input-wrap input:focus{outline:none;border-color:#0055FF;}
+.input-suffix{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  font-size:11px;color:rgba(255,255,255,0.25);pointer-events:none;
+}
+
+.result-card{
+  background:#060c1e;
+  border:1px solid rgba(0,85,255,0.15);
+  border-radius:10px;
+  padding:16px 18px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.result-row{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.result-label{font-size:11px;color:rgba(255,255,255,0.3);}
+.result-val{font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);}
+.result-val.highlight{color:#4DE1FF;}
+.result-val.big{font-size:18px;color:#fff;}
+.result-val.amber{color:#FFB460;}
+.divider{height:1px;background:rgba(0,85,255,0.08);}
+
+.interp-note{
+  font-size:10px;color:rgba(255,255,255,0.18);
+  line-height:1.7;padding-top:2px;
+  border-top:1px solid rgba(0,85,255,0.06);
+  margin-top:4px;
+}
+.interp-note span{color:rgba(77,225,255,0.5);}
+
+.curve-visual{
+  height:48px;position:relative;margin-top:4px;
+}
+canvas#curve{display:block;width:100%;height:48px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <div class="card-title">SAIBOR curve — tenor rates</div>
+    <div class="curve-grid">
+      <div class="tenor-field">
+        <div class="tenor-label">O/N</div>
+        <input class="tenor-input" type="number" id="r0" value="4.20" step="0.01" min="0.01" max="100" oninput="calc()">
+        <div class="tenor-suffix">1 day</div>
+      </div>
+      <div class="tenor-field">
+        <div class="tenor-label">1W</div>
+        <input class="tenor-input" type="number" id="r1" value="4.35" step="0.01" min="0.01" max="100" oninput="calc()">
+        <div class="tenor-suffix">7 days</div>
+      </div>
+      <div class="tenor-field">
+        <div class="tenor-label">1M</div>
+        <input class="tenor-input" type="number" id="r2" value="4.55" step="0.01" min="0.01" max="100" oninput="calc()">
+        <div class="tenor-suffix">30 days</div>
+      </div>
+      <div class="tenor-field">
+        <div class="tenor-label">3M</div>
+        <input class="tenor-input" type="number" id="r3" value="4.82" step="0.01" min="0.01" max="100" oninput="calc()">
+        <div class="tenor-suffix">90 days</div>
+      </div>
+      <div class="tenor-field">
+        <div class="tenor-label">6M</div>
+        <input class="tenor-input" type="number" id="r4" value="5.10" step="0.01" min="0.01" max="100" oninput="calc()">
+        <div class="tenor-suffix">180 days</div>
+      </div>
+      <div class="tenor-field">
+        <div class="tenor-label">12M</div>
+        <input class="tenor-input" type="number" id="r5" value="5.45" step="0.01" min="0.01" max="100" oninput="calc()">
+        <div class="tenor-suffix">360 days</div>
+      </div>
+    </div>
+    <div class="curve-visual">
+      <canvas id="curve" height="48"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Invoice parameters</div>
+    <div class="invoice-grid">
+      <div class="input-field">
+        <div class="input-label">Invoice amount</div>
+        <div class="input-wrap">
+          <input type="number" id="amount" value="100000" min="1" oninput="calc()">
+          <span class="input-suffix">SAR</span>
+        </div>
+      </div>
+      <div class="input-field">
+        <div class="input-label">Program margin</div>
+        <div class="input-wrap">
+          <input type="number" id="margin" value="3.00" step="0.01" min="0" max="100" oninput="calc()">
+          <span class="input-suffix">%</span>
+        </div>
+      </div>
+      <div class="input-field">
+        <div class="input-label">Invoice tenor</div>
+        <div class="input-wrap">
+          <input type="number" id="tenor" value="45" min="1" max="360" oninput="calc()">
+          <span class="input-suffix">days</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Result</div>
+    <div class="result-card">
+      <div class="result-row">
+        <span class="result-label">Interpolated SAIBOR rate</span>
+        <span class="result-val highlight" id="r-saibor">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Program margin</span>
+        <span class="result-val" id="r-margin">—</span>
+      </div>
+      <div class="divider"></div>
+      <div class="result-row">
+        <span class="result-label">Total profit margin</span>
+        <span class="result-val big" id="r-total">—</span>
+      </div>
+      <div class="divider"></div>
+      <div class="result-row">
+        <span class="result-label">Profit amount</span>
+        <span class="result-val amber" id="r-profit">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Estimated net receivable</span>
+        <span class="result-val" id="r-net">—</span>
+      </div>
+    </div>
+    <div class="interp-note" id="r-note"></div>
+  </div>
+
+</div>
+
+<script>
+const TENORS=[1,7,30,90,180,360];
+const LABELS=['O/N','1W','1M','3M','6M','12M'];
+
+function getRates(){
+  return ['r0','r1','r2','r3','r4','r5'].map(id=>{
+    const v=parseFloat(document.getElementById(id).value);
+    return isNaN(v)?0:v;
+  });
+}
+
+function interpolate(tenorDays,rates){
+  if(tenorDays<=TENORS[0]) return {rate:rates[0],note:`Tenor ≤ 1 day — using O/N rate directly.`,t1:null,t2:null};
+  if(tenorDays>=TENORS[5]) return {rate:rates[5],note:`Tenor ≥ 360 days — using 12M rate directly.`,t1:null,t2:null};
+  for(let i=0;i<TENORS.length-1;i++){
+    if(tenorDays===TENORS[i]) return {rate:rates[i],note:`Tenor matches ${LABELS[i]} exactly — no interpolation needed.`,t1:null,t2:null};
+    if(tenorDays>TENORS[i]&&tenorDays<TENORS[i+1]){
+      const t1=TENORS[i],t2=TENORS[i+1];
+      const r1=rates[i],r2=rates[i+1];
+      const w=(tenorDays-t1)/(t2-t1);
+      const r=r1+w*(r2-r1);
+      return {
+        rate:r,
+        t1,t2,r1,r2,w,
+        note:`Tenor of <span>${tenorDays} days</span> falls between <span>${LABELS[i]} (${r1.toFixed(2)}%)</span> and <span>${LABELS[i+1]} (${r2.toFixed(2)}%)</span>. Weight: <span>${w.toFixed(4)}</span>. Interpolated: <span>${r1.toFixed(2)} + ${w.toFixed(4)} × (${r2.toFixed(2)} − ${r1.toFixed(2)}) = ${r.toFixed(4)}%</span>`
+      };
+    }
+  }
+}
+
+function fmt(n){return n.toLocaleString('en-SA',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function calc(){
+  const rates=getRates();
+  const tenor=parseInt(document.getElementById('tenor').value)||1;
+  const margin=parseFloat(document.getElementById('margin').value)||0;
+  const amount=parseFloat(document.getElementById('amount').value)||0;
+
+  const {rate,note}=interpolate(Math.max(1,Math.min(360,tenor)),rates);
+  const total=margin+rate;
+  const profit=amount*(total/100);
+  const net=amount-profit;
+
+  document.getElementById('r-saibor').textContent=rate.toFixed(4)+'%';
+  document.getElementById('r-margin').textContent=margin.toFixed(2)+'%';
+  document.getElementById('r-total').textContent=total.toFixed(4)+'%';
+  document.getElementById('r-profit').textContent='SAR '+fmt(profit);
+  document.getElementById('r-net').textContent='SAR '+fmt(net);
+  document.getElementById('r-note').innerHTML=note||'';
+
+  drawCurve(rates,tenor,rate);
+}
+
+function drawCurve(rates,tenorDays,interpRate){
+  const cv=document.getElementById('curve');
+  const W=cv.offsetWidth||580;
+  cv.width=W;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,W,48);
+
+  const pad=16;
+  const minR=Math.min(...rates)*0.98;
+  const maxR=Math.max(...rates)*1.02;
+  const rng=maxR-minR||0.1;
+
+  const px=i=>pad+(W-pad*2)*i/(TENORS.length-1);
+  const py=r=>40-(r-minR)/rng*32;
+
+  // line
+  ctx.strokeStyle='rgba(0,85,255,0.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  TENORS.forEach((t,i)=>{i===0?ctx.moveTo(px(i),py(rates[i])):ctx.lineTo(px(i),py(rates[i]));});
+  ctx.stroke();
+
+  // dots
+  TENORS.forEach((t,i)=>{
+    ctx.fillStyle='rgba(0,85,255,0.6)';
+    ctx.beginPath();ctx.arc(px(i),py(rates[i]),3,0,Math.PI*2);ctx.fill();
+  });
+
+  // interpolated point — position between actual curve point indices
+  const clampedTenor=Math.max(1,Math.min(360,tenorDays));
+  let ipx,ipy;
+  if(clampedTenor<=TENORS[0]){
+    ipx=px(0);ipy=py(rates[0]);
+  } else if(clampedTenor>=TENORS[5]){
+    ipx=px(5);ipy=py(rates[5]);
+  } else {
+    let segIdx=0;
+    for(let i=0;i<TENORS.length-1;i++){
+      if(clampedTenor>=TENORS[i]&&clampedTenor<=TENORS[i+1]){segIdx=i;break;}
+    }
+    const segFrac=(clampedTenor-TENORS[segIdx])/(TENORS[segIdx+1]-TENORS[segIdx]);
+    ipx=px(segIdx)+segFrac*(px(segIdx+1)-px(segIdx));
+    ipy=py(interpRate);
+  }
+  ctx.fillStyle='#4DE1FF';
+  ctx.beginPath();ctx.arc(ipx,ipy,4.5,0,Math.PI*2);ctx.fill();
+
+  // vertical line to x axis
+  ctx.strokeStyle='rgba(77,225,255,0.2)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+  ctx.beginPath();ctx.moveTo(ipx,ipy+5);ctx.lineTo(ipx,42);ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+calc();
+window.addEventListener('resize',calc);
+</script>
+</body>
+</html>
