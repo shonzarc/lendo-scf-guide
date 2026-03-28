@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  min-height:100vh;
+  display:flex;align-items:flex-start;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  padding:36px 20px 24px;
+}
+.frame{width:100%;max-width:720px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,85,255,0.2);}
+.chrome{background:#0a0e24;padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(0,85,255,0.12);}
+.dots{display:flex;gap:5px;}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dot-r{background:#ff5f57;}.dot-y{background:#febc2e;}.dot-g{background:#28c840;}
+.url{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.3);}
+.stage{width:100%;background:#0d1020;position:relative;overflow:hidden;cursor:grab;}
+.stage.drag{cursor:grabbing;}
+.img-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.img-wrap img{width:100%;display:block;transform-origin:center center;}
+.zoom-bar{position:absolute;bottom:10px;right:10px;display:flex;gap:5px;z-index:20;}
+.zbtn{width:26px;height:26px;background:rgba(10,14,36,0.9);border:1px solid rgba(0,85,255,0.3);border-radius:6px;color:rgba(255,255,255,0.6);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.zbtn:hover{border-color:#0055FF;color:#fff;}
+.zlbl{display:flex;align-items:center;background:rgba(10,14,36,0.9);border:1px solid rgba(0,85,255,0.2);border-radius:6px;padding:0 8px;font-size:10px;color:rgba(255,255,255,0.4);min-width:42px;justify-content:center;}
+.caption{padding:12px 18px;background:#0a0e24;border-top:1px solid rgba(0,85,255,0.12);min-height:56px;display:flex;align-items:center;gap:10px;}
+.cap-label{font-size:11px;font-weight:600;color:#4DE1FF;white-space:nowrap;flex-shrink:0;}
+.cap-text{font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="chrome">
+    <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+    <div class="url">buyer.lendo.sa / reports</div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="img-wrap">
+      <img id="img" src="slide1.png" alt="Reports">
+    </div>
+    <div class="zoom-bar">
+      <button class="zbtn" id="zout">−</button>
+      <div class="zlbl" id="zlbl">100%</div>
+      <button class="zbtn" id="zin">+</button>
+    </div>
+  </div>
+  <div class="caption">
+    <span class="cap-label">Reports</span>
+    <span class="cap-text">Five downloadable reports across three categories — Operational, Financial, and Performance. All respect the active date, program, and supplier filters. Batch download grabs everything at once. Custom report requests go straight to support.</span>
+  </div>
+</div>
+
+<script>
+let sc=1,tx=0,ty=0,drag=false,mx=0,my=0,otx=0,oty=0;
+const stage=document.getElementById('stage');
+const img=document.getElementById('img');
+const zlbl=document.getElementById('zlbl');
+
+img.onload=function(){
+  const ratio=img.naturalHeight/img.naturalWidth;
+  stage.style.height=Math.round(stage.offsetWidth*ratio)+'px';
+};
+
+function applyT(){img.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;zlbl.textContent=Math.round(sc*100)+'%';}
+function zoomBy(d){sc=Math.min(4,Math.max(1,Math.round((sc+d)*100)/100));if(sc===1){tx=0;ty=0;}applyT();}
+
+document.getElementById('zin').addEventListener('click',function(){zoomBy(0.25);});
+document.getElementById('zout').addEventListener('click',function(){zoomBy(-0.25);});
+stage.addEventListener('wheel',function(e){e.preventDefault();zoomBy(e.deltaY>0?-0.15:0.15);},{passive:false});
+stage.addEventListener('mousedown',function(e){if(sc<=1)return;drag=true;stage.classList.add('drag');mx=e.clientX;my=e.clientY;otx=tx;oty=ty;});
+window.addEventListener('mousemove',function(e){if(!drag)return;tx=otx+(e.clientX-mx);ty=oty+(e.clientY-my);applyT();});
+window.addEventListener('mouseup',function(){drag=false;stage.classList.remove('drag');});
+</script>
+</body>
+</html>
