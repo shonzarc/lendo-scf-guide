@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#090419;
+  min-height:100vh;
+  display:flex;align-items:flex-start;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  padding:36px 20px 24px;
+}
+.frame{width:100%;max-width:720px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,85,255,0.2);}
+.chrome{background:#0a0e24;padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(0,85,255,0.12);}
+.dots{display:flex;gap:5px;}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dot-r{background:#ff5f57;}.dot-y{background:#febc2e;}.dot-g{background:#28c840;}
+.url{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.3);}
+.stage{width:100%;height:400px;background:#0d1020;position:relative;overflow:hidden;cursor:grab;transition:height 0.4s ease;}
+.stage.drag{cursor:grabbing;}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.4s;pointer-events:none;}
+.slide.active{opacity:1;pointer-events:all;}
+.slide img{object-fit:contain;display:block;transform-origin:center center;}
+.slide.full img{width:100%;height:100%;object-fit:cover;object-position:top center;}
+.slide:not(.full) img{max-width:100%;max-height:100%;}
+.zoom-bar{position:absolute;bottom:10px;right:10px;display:flex;gap:5px;z-index:20;}
+.zbtn{width:26px;height:26px;background:rgba(10,14,36,0.9);border:1px solid rgba(0,85,255,0.3);border-radius:6px;color:rgba(255,255,255,0.6);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.zbtn:hover{border-color:#0055FF;color:#fff;}
+.zlbl{display:flex;align-items:center;background:rgba(10,14,36,0.9);border:1px solid rgba(0,85,255,0.2);border-radius:6px;padding:0 8px;font-size:10px;color:rgba(255,255,255,0.4);min-width:42px;justify-content:center;}
+.caption{padding:12px 18px;background:#0a0e24;border-top:1px solid rgba(0,85,255,0.12);min-height:56px;display:flex;align-items:center;gap:10px;}
+.cap-label{font-size:11px;font-weight:600;color:#4DE1FF;white-space:nowrap;flex-shrink:0;}
+.cap-text{font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;}
+.controls{padding:10px 18px;background:#0a0e24;border-top:1px solid rgba(0,85,255,0.08);display:flex;align-items:center;justify-content:space-between;}
+.nbtn{background:none;border:1px solid rgba(0,85,255,0.3);border-radius:8px;color:rgba(255,255,255,0.5);font-size:12px;padding:5px 14px;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+.nbtn:hover:not(:disabled){border-color:#0055FF;color:#fff;}
+.nbtn:disabled{opacity:0.2;cursor:default;}
+@keyframes glow{0%,100%{border-color:rgba(0,85,255,0.3);color:rgba(255,255,255,0.5);box-shadow:none;}50%{border-color:#0055FF;color:#fff;box-shadow:0 0 0 3px rgba(0,85,255,0.15);}}
+.nbtn.glowing{animation:glow 1.8s ease-in-out infinite;}
+.dnav{display:flex;gap:6px;align-items:center;}
+.dn{width:6px;height:6px;border-radius:50%;background:rgba(0,85,255,0.3);cursor:pointer;transition:all 0.25s;}
+.dn.active{background:#0055FF;width:18px;border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="chrome">
+    <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+    <div class="url">buyer.lendo.sa / suppliers</div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="zoom-bar">
+      <button class="zbtn" id="zout">−</button>
+      <div class="zlbl" id="zlbl">100%</div>
+      <button class="zbtn" id="zin">+</button>
+    </div>
+  </div>
+  <div class="caption"><span class="cap-label" id="clbl"></span><span class="cap-text" id="ctxt"></span></div>
+  <div class="controls">
+    <button class="nbtn" id="pbtn" disabled>← Prev</button>
+    <div class="dnav" id="dnav"></div>
+    <button class="nbtn glowing" id="nbtn">Next →</button>
+  </div>
+</div>
+
+<script>
+const SLIDES=[
+  {label:'Suppliers & Invoices',full:true,height:null,text:'A grid of every enrolled supplier — with invoice count, total amount, last activity, and status. Buyers can search, filter by program or status, and sort. Add Suppliers and Add Invoices buttons sit top right.'},
+  {label:'Supplier detail view',full:false,height:500,text:'Clicking any supplier opens their full profile — contact info, program enrollment, and a complete invoice table filterable by status, program, issue and due date.'},
+];
+
+let cur=0,sc=1,tx=0,ty=0,drag=false,mx=0,my=0,otx=0,oty=0;
+const stage=document.getElementById('stage');
+const dnav=document.getElementById('dnav');
+const zlbl=document.getElementById('zlbl');
+const heights=[null,500];
+
+SLIDES.forEach((s,i)=>{
+  const slide=document.createElement('div');
+  slide.className='slide'+(s.full?' full':'')+(i===0?' active':'');
+  slide.id='sl-'+i;
+
+  const img=document.createElement('img');
+  img.id='im-'+i;
+  img.src='slide'+(i+1)+'.png';
+  img.style.display='block';
+  img.onload=function(){
+    if(i===0){
+      const ratio=img.naturalHeight/img.naturalWidth;
+      heights[0]=Math.round(stage.offsetWidth*ratio);
+      if(cur===0) stage.style.height=heights[0]+'px';
+    }
+  };
+
+  slide.appendChild(img);
+  stage.insertBefore(slide,stage.querySelector('.zoom-bar'));
+
+  const d=document.createElement('div');
+  d.className='dn'+(i===0?' active':'');
+  d.addEventListener('click',function(){goTo(i);});
+  dnav.appendChild(d);
+});
+
+updateUI();
+
+function applyT(){
+  const img=document.getElementById('im-'+cur);
+  if(!img) return;
+  img.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+  zlbl.textContent=Math.round(sc*100)+'%';
+}
+function resetT(){
+  sc=1;tx=0;ty=0;
+  const img=document.getElementById('im-'+cur);
+  if(img) img.style.transform='';
+  zlbl.textContent='100%';
+}
+function zoomBy(d){
+  sc=Math.min(4,Math.max(1,Math.round((sc+d)*100)/100));
+  if(sc===1){tx=0;ty=0;}
+  applyT();
+}
+
+document.getElementById('zin').addEventListener('click',function(){zoomBy(0.25);});
+document.getElementById('zout').addEventListener('click',function(){zoomBy(-0.25);});
+stage.addEventListener('wheel',function(e){e.preventDefault();zoomBy(e.deltaY>0?-0.15:0.15);},{passive:false});
+stage.addEventListener('mousedown',function(e){if(sc<=1)return;drag=true;stage.classList.add('drag');mx=e.clientX;my=e.clientY;otx=tx;oty=ty;});
+window.addEventListener('mousemove',function(e){if(!drag)return;tx=otx+(e.clientX-mx);ty=oty+(e.clientY-my);applyT();});
+window.addEventListener('mouseup',function(){drag=false;stage.classList.remove('drag');});
+
+function goTo(idx){
+  document.getElementById('sl-'+cur).classList.remove('active');
+  document.querySelectorAll('.dn')[cur].classList.remove('active');
+  resetT();
+  cur=idx;
+  document.getElementById('sl-'+cur).classList.add('active');
+  document.querySelectorAll('.dn')[cur].classList.add('active');
+  if(heights[cur]) stage.style.height=heights[cur]+'px';
+  document.getElementById('nbtn').classList.remove('glowing');
+  updateUI();
+}
+document.getElementById('pbtn').addEventListener('click',function(){if(cur>0)goTo(cur-1);});
+document.getElementById('nbtn').addEventListener('click',function(){if(cur<SLIDES.length-1)goTo(cur+1);});
+
+function updateUI(){
+  document.getElementById('clbl').textContent=SLIDES[cur].label;
+  document.getElementById('ctxt').textContent=SLIDES[cur].text;
+  document.getElementById('pbtn').disabled=cur===0;
+  document.getElementById('nbtn').disabled=cur===SLIDES.length-1;
+}
+</script>
+</body>
+</html>
