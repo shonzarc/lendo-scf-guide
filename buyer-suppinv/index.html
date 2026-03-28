@@ -67,13 +67,15 @@ body{
 const SLIDES=[
   {label:'Suppliers & Invoices',full:true,height:null,text:'A grid of every enrolled supplier — with invoice count, total amount, last activity, and status. Buyers can search, filter by program or status, and sort. Add Suppliers and Add Invoices buttons sit top right.'},
   {label:'Supplier detail view',full:false,height:500,text:'Clicking any supplier opens their full profile — contact info, program enrollment, and a complete invoice table filterable by status, program, issue and due date.'},
+  {label:'Bulk upload — step 1',full:false,height:500,text:'Three steps: download the template, select an SCF program, then upload the filled file. Accepts CSV or Excel up to 5MB. The system validates and processes each row automatically.'},
+  {label:'Bulk upload — results',full:false,height:500,text:'After processing, a results screen shows successful, failed, and total counts. Each row shows the outcome and failure reason if applicable. The full results set is exportable.'},
 ];
 
 let cur=0,sc=1,tx=0,ty=0,drag=false,mx=0,my=0,otx=0,oty=0;
 const stage=document.getElementById('stage');
 const dnav=document.getElementById('dnav');
 const zlbl=document.getElementById('zlbl');
-const heights=[null,500];
+const heights=[null,500,500,500];
 
 SLIDES.forEach((s,i)=>{
   const slide=document.createElement('div');
