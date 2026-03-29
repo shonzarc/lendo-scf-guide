@@ -1,0 +1,134 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#090419;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center;padding:36px 20px 32px}
+.tag{font-size:11px;letter-spacing:5px;color:#4DE1FF;text-transform:uppercase;margin-bottom:12px;font-family:'Courier New',monospace}
+.heading{font-size:21px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px;text-align:center}
+.sub{font-size:13px;color:#4a5e70;margin-bottom:28px;text-align:center;line-height:1.6}
+.bar-wrap{width:100%;max-width:480px;margin-bottom:32px}
+.bar-labels{display:flex;justify-content:space-between;font-size:10px;letter-spacing:2px;color:#3a5060;text-transform:uppercase;margin-bottom:6px}
+.bar-track{height:2px;background:#0d0b1a;border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#0055FF,#4DE1FF);border-radius:2px}
+.arena{display:flex;gap:28px;align-items:flex-start;margin-bottom:28px}
+.team{display:flex;flex-direction:column;align-items:center;gap:10px}
+.team-name{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#3a5060}
+.team-name.lendo{color:#4DE1FF}
+.counter{font-size:52px;font-weight:900;letter-spacing:-3px;line-height:1}
+.counter.norm{color:#1a2a3a}
+.counter.lendo{color:#0055FF}
+.grid{width:216px;display:flex;flex-wrap:wrap;gap:3px;padding:6px;background:#07060e;border:1px solid #0e0c1e;border-radius:8px}
+.block{width:36px;height:36px;flex-shrink:0;border-radius:4px;background:#0d0b1a;border:1px solid #130f22;opacity:.3;transform:scale(.85);transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s,background .15s,border-color .15s}
+.block.on{opacity:1;transform:scale(1)}
+.block.on.norm{background:#1a3355;border-color:#274468}
+.block.on.scf{background:#0055FF;border-color:#3377ff}
+.block.on.beyond{background:#4DE1FF;border-color:#7efff7}
+.status{font-size:10px;letter-spacing:2px;text-transform:uppercase;height:16px;color:transparent;transition:color .5s}
+.status.show-n{color:#3a5060}
+.status.show-l{color:#4DE1FF}
+.vs{display:flex;align-items:center;padding-top:96px;color:#3a5060;font-size:11px;letter-spacing:3px}
+.callout{text-align:center;opacity:0;transition:opacity .8s;margin-bottom:4px}
+.callout.show{opacity:1}
+.callout-big{font-size:58px;font-weight:900;color:#0055FF;letter-spacing:-3px;line-height:1}
+.callout-small{font-size:11px;color:#4a5e70;letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+</style>
+
+<p class="tag">40 Epics</p>
+<h1 class="heading">What we shipped in 6 months.</h1>
+<p class="sub">A typical team delivers around 18 epics in 6 months.<br/>Watch how that compares.</p>
+
+<div class="bar-wrap">
+  <div class="bar-labels"><span>Oct</span><span>— 6 months —</span><span>Mar</span></div>
+  <div class="bar-track"><div class="bar-fill" id="bf"></div></div>
+</div>
+
+<div class="arena">
+  <div class="team">
+    <span class="team-name">Typical Team</span>
+    <div class="counter norm" id="nc">0</div>
+    <div class="grid" id="ng"></div>
+    <span class="status" id="ns">Year over.</span>
+  </div>
+  <div class="vs">vs</div>
+  <div class="team">
+    <span class="team-name lendo">Lendo SCF</span>
+    <div class="counter lendo" id="lc">0</div>
+    <div class="grid" id="lg"></div>
+    <span class="status" id="ls">Done. ✓</span>
+  </div>
+</div>
+
+<div class="callout" id="callout">
+  <div class="callout-big">2.2×</div>
+  <div class="callout-small">the industry standard · Oct to Mar</div>
+</div>
+
+<script>
+var CELLS=40, N=18, L=40, DUR=9000;
+var timers=[];
+
+function clearAll(){ timers.forEach(function(t){ clearInterval(t); clearTimeout(t); }); timers=[]; }
+
+function mkGrid(id){
+  var g=document.getElementById(id);
+  g.innerHTML='';
+  for(var i=0;i<CELLS;i++){
+    var d=document.createElement('div');
+    d.className='block';
+    d.id=id+i;
+    g.appendChild(d);
+  }
+}
+
+function reset(){
+  clearAll();
+  mkGrid('ng'); mkGrid('lg');
+  document.getElementById('nc').textContent='0';
+  document.getElementById('lc').textContent='0';
+  document.getElementById('ns').className='status';
+  document.getElementById('ls').className='status';
+  document.getElementById('callout').className='callout';
+  document.getElementById('bf').style.width='0%';
+}
+
+function run(){
+  reset();
+  var start=Date.now();
+
+  var barTimer=setInterval(function(){
+    var p=Math.min(100,((Date.now()-start)/DUR)*100);
+    document.getElementById('bf').style.width=p+'%';
+    if(p>=100) clearInterval(barTimer);
+  },50);
+  timers.push(barTimer);
+
+  var nc=0;
+  var ni=setInterval(function(){
+    if(nc>=N){ clearInterval(ni); document.getElementById('ns').className='status show-n'; document.getElementById('ns').textContent="That's their best."; return; }
+    document.getElementById('ng'+nc).className='block on norm';
+    nc++;
+    document.getElementById('nc').textContent=nc;
+  }, DUR/N);
+  timers.push(ni);
+
+  var lc=0;
+  var li=setInterval(function(){
+    if(lc>=L){
+      clearInterval(li);
+      document.getElementById('ls').className='status show-l';
+      var t1=setTimeout(function(){
+        document.getElementById('callout').className='callout show';
+        var t2=setTimeout(function(){ run(); }, 3500);
+        timers.push(t2);
+      }, 600);
+      timers.push(t1);
+      return;
+    }
+    var cls='block on scf'+(lc>=N?' beyond':'');
+    document.getElementById('lg'+lc).className=cls;
+    lc++;
+    document.getElementById('lc').textContent=lc;
+  }, DUR/L);
+  timers.push(li);
+}
+
+setTimeout(function(){ run(); }, 800);
+</script>
