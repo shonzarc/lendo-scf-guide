@@ -1,0 +1,90 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#090419;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center;padding:32px 20px}
+.tag{font-size:11px;letter-spacing:5px;color:#4DE1FF;text-transform:uppercase;margin-bottom:12px;font-family:'Courier New',monospace;text-align:center}
+.heading{font-size:21px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px;text-align:center}
+.sub{font-size:13px;color:#4a5e70;margin-bottom:20px;text-align:center;line-height:1.6}
+.counter{font-size:64px;font-weight:900;letter-spacing:-4px;color:#0055FF;font-family:'Courier New',monospace;text-align:center;margin-bottom:16px;transition:color .5s}
+.counter.done{color:#4DE1FF}
+.stage{width:100%;max-width:560px;position:relative;border-radius:8px;border:1px solid #0e0c1e;overflow:hidden;background:#07060e;padding:14px;margin-bottom:16px}
+.grid{display:flex;flex-wrap:wrap;gap:3px;justify-content:center}
+.cell{width:13px;height:13px;border-radius:3px;background:#1a3322;border:1px solid #0d2218;transition:transform .1s;position:relative;display:flex;align-items:center;justify-content:center;font-size:9px}
+.cell.alive{background:#1a4422;border-color:#1a5522}
+.cell.squashed{background:#07060e;border-color:#0d0b1a;transform:scale(0)}
+.cell.splat{background:#0f3322;border-color:#0d2218}
+.callout{text-align:center;opacity:0;transition:opacity 1s;min-height:52px}
+.callout.show{opacity:1}
+.callout-big{font-size:36px;font-weight:900;color:#4DE1FF;letter-spacing:-1px;line-height:1}
+.callout-small{font-size:11px;color:#4a5e70;letter-spacing:3px;text-transform:uppercase;margin-top:6px}
+</style>
+
+<p class="tag">1,086 Findings</p>
+<h1 class="heading">Every single one. Squashed.</h1>
+<p class="sub">Before SCF went live, our QA team found and fixed 1,086 issues.<br/>That's what getting it right looks like.</p>
+
+<div class="counter" id="counter">0</div>
+
+<div class="stage">
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="callout" id="callout">
+  <div class="callout-big">1,086 — 0</div>
+  <div class="callout-small">QA wins. Every time.</div>
+</div>
+
+<script>
+var MAX=1086, cells=[], count=0, timers=[];
+
+var BUGS=['🐛','🦗','🪲','🐜','🦟'];
+
+function build(){
+  var g=document.getElementById('grid');
+  g.innerHTML=''; cells=[];
+  for(var i=0;i<MAX;i++){
+    var d=document.createElement('div');
+    d.className='cell alive';
+    d.textContent=BUGS[i%BUGS.length];
+    g.appendChild(d);
+    cells.push(d);
+  }
+  // Shuffle order for random squash
+  cells=cells.slice().sort(function(){return Math.random()-.5;});
+}
+
+function reset(){
+  timers.forEach(function(t){clearInterval(t);clearTimeout(t);}); timers=[];
+  count=0;
+  document.getElementById('counter').textContent='0';
+  document.getElementById('counter').className='counter';
+  document.getElementById('callout').className='callout';
+  build();
+}
+
+function run(){
+  reset();
+  // Batch squash — starts at 5 per tick, ramps to 30
+  var idx=0;
+  var t=setInterval(function(){
+    if(idx>=MAX){
+      clearInterval(t);
+      document.getElementById('counter').className='counter done';
+      setTimeout(function(){
+        document.getElementById('callout').className='callout show';
+        setTimeout(function(){run();},2500);
+      },600);
+      return;
+    }
+    // batch size ramps up
+    var batch= idx<200?3 : idx<500?8 : idx<900?16 : 30;
+    for(var b=0;b<batch&&idx<MAX;b++,idx++){
+      cells[idx].className='cell squashed';
+      count++;
+    }
+    document.getElementById('counter').textContent=count;
+  },40);
+  timers.push(t);
+}
+
+setTimeout(run,600);
+</script>
