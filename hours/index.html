@@ -1,0 +1,130 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#090419;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:100vh}
+.tag{font-size:11px;letter-spacing:5px;color:#4DE1FF;text-transform:uppercase;margin-bottom:12px;font-family:'Courier New',monospace;text-align:center}
+.heading{font-size:21px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px;text-align:center}
+.sub{font-size:13px;color:#4a5e70;margin-bottom:36px;text-align:center;line-height:1.6}
+
+.scene{width:100%;max-width:500px;display:flex;flex-direction:column;align-items:center;gap:0}
+
+/* Year display */
+.year-display{font-size:72px;font-weight:900;letter-spacing:-4px;color:#0055FF;line-height:1;font-family:'Courier New',monospace;transition:color .5s;text-align:center}
+.year-display.danger{color:#FFB460}
+.year-display.done{color:#4DE1FF}
+
+/* Progress bar */
+.bar-wrap{width:100%;max-width:440px;margin:20px 0 10px}
+.bar-track{height:3px;background:#0d0b1a;border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;width:0%;border-radius:2px;transition:width .1s linear;background:linear-gradient(90deg,#0055FF,#4DE1FF)}
+
+/* Milestone */
+.milestone{min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:12px 0 0}
+.milestone-emoji{font-size:32px;margin-bottom:6px;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+.milestone-emoji.show{opacity:1;transform:translateY(0)}
+.milestone-text{font-size:15px;color:#4a5e70;text-align:center;opacity:0;transform:translateY(6px);transition:opacity .5s .1s,transform .5s .1s;line-height:1.5}
+.milestone-text.show{opacity:1;transform:translateY(0)}
+.milestone-text em{color:#fff;font-style:normal;font-weight:600}
+
+/* Final card */
+.final{opacity:0;transition:opacity 1s;text-align:center;margin-top:28px;padding:24px 28px;border:1px solid #0055FF2a;border-radius:10px;background:#0D0829;max-width:400px}
+.final.show{opacity:1}
+.final-big{font-size:15px;color:#4a5e70;line-height:1.7;margin-bottom:16px}
+.final-big strong{color:#fff;font-weight:700}
+.final-punch{font-size:22px;font-weight:800;color:#4DE1FF;letter-spacing:-.5px}
+</style>
+
+<p class="tag">41,500 Hours</p>
+<h1 class="heading">One person. Alone.</h1>
+<p class="sub">How long would it take a single developer<br/>to build everything we built?</p>
+
+<div class="scene">
+  <div class="year-display" id="year">2025</div>
+  <div class="bar-wrap">
+    <div class="bar-track"><div class="bar-fill" id="bar"></div></div>
+  </div>
+  <div class="milestone">
+    <div class="milestone-emoji" id="m-emoji"></div>
+    <div class="milestone-text" id="m-text"></div>
+  </div>
+</div>
+
+<div class="final" id="final">
+  <div class="final-big">A child born when we started this project<br/>would be finishing <strong>university</strong> by the time<br/>one person shipped SCF alone.</div>
+  <div class="final-punch">We did it in 6 months. Together.</div>
+</div>
+
+<script>
+var MILESTONES = [
+  { year:2026, pct:3,  emoji:"👶", text:"A baby is born. <em>Our developer opens a new Jira board.</em>" },
+  { year:2028, pct:15, emoji:"🚶", text:"She takes her first steps. <em>He's still in sprint 12.</em>" },
+  { year:2031, pct:30, emoji:"🎒", text:"She starts school. <em>He finally completes the Buyer Portal.</em>" },
+  { year:2035, pct:50, emoji:"📚", text:"She's halfway through high school. <em>He's halfway through SCF.</em>" },
+  { year:2040, pct:70, emoji:"🚗", text:"She gets her driver's license. <em>He's debugging invoice flows.</em>" },
+  { year:2044, pct:87, emoji:"🎓", text:"She graduates university. <em>He's almost done. Almost.</em>" },
+  { year:2046, pct:100,emoji:"🏁", text:"She's 21. Starting her career. <em>He ships his last ticket.</em>" },
+];
+
+var START = 2025, END = 2046, TOTAL_DUR = 14000;
+var timers = [], currentMilestone = -1;
+
+function clearAll(){ timers.forEach(function(t){ clearInterval(t); clearTimeout(t); }); timers=[]; }
+
+function showMilestone(i){
+  var m = MILESTONES[i];
+  var emoji = document.getElementById('m-emoji');
+  var text = document.getElementById('m-text');
+  emoji.className='milestone-emoji'; text.className='milestone-text';
+  void emoji.offsetWidth;
+  emoji.textContent = m.emoji;
+  text.innerHTML = m.text;
+  setTimeout(function(){
+    emoji.className='milestone-emoji show';
+    text.className='milestone-text show';
+  }, 20);
+}
+
+function run(){
+  clearAll(); currentMilestone=-1;
+  document.getElementById('year').textContent='2025';
+  document.getElementById('year').className='year-display';
+  document.getElementById('bar').style.width='0%';
+  document.getElementById('m-emoji').className='milestone-emoji';
+  document.getElementById('m-text').className='milestone-text';
+  document.getElementById('final').className='final';
+
+  var start = Date.now();
+  var t = setInterval(function(){
+    var elapsed = Date.now()-start;
+    var p = Math.min(1, elapsed/TOTAL_DUR);
+    var year = Math.round(START + p*(END-START));
+    var pct = Math.round(p*100);
+
+    document.getElementById('bar').style.width = pct+'%';
+    document.getElementById('year').textContent = year;
+
+    if(year >= 2040) document.getElementById('year').className='year-display danger';
+    if(year >= 2046) document.getElementById('year').className='year-display done';
+
+    // Milestones
+    for(var i=0;i<MILESTONES.length;i++){
+      if(pct >= MILESTONES[i].pct && currentMilestone < i){
+        currentMilestone = i;
+        showMilestone(i);
+      }
+    }
+
+    if(p >= 1){
+      clearInterval(t);
+      var t2 = setTimeout(function(){
+        document.getElementById('final').className='final show';
+        var t3 = setTimeout(function(){ run(); }, 5000);
+        timers.push(t3);
+      }, 1200);
+      timers.push(t2);
+    }
+  }, 50);
+  timers.push(t);
+}
+
+setTimeout(function(){ run(); }, 600);
+</script>
