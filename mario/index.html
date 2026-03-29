@@ -1,0 +1,190 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#090419;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center;padding:32px 20px;overflow-x:hidden}
+.tag{font-size:11px;letter-spacing:5px;color:#4DE1FF;text-transform:uppercase;margin-bottom:12px;font-family:'Courier New',monospace}
+.heading{font-size:21px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px;text-align:center}
+.sub{font-size:13px;color:#4a5e70;margin-bottom:24px;text-align:center;line-height:1.6}
+.hud{display:flex;gap:32px;justify-content:center;margin-bottom:16px;font-family:'Courier New',monospace}
+.hud-item{text-align:center}
+.hud-label{font-size:9px;letter-spacing:3px;color:#3a5060;text-transform:uppercase;margin-bottom:4px}
+.hud-val{font-size:28px;font-weight:900;letter-spacing:-1px}
+.hud-val.mario{color:#4a5e70}
+.hud-val.lendo{color:#0055FF}
+.hud-val.beyond{color:#4DE1FF}
+.stage{width:100%;max-width:600px;height:180px;position:relative;overflow:hidden;border:1px solid #0e0c1e;border-radius:8px;background:#0a0818}
+.sky{position:absolute;inset:0;background:linear-gradient(180deg,#0a0515 0%,#0d0a2a 60%,#141040 100%)}
+.ground{position:absolute;bottom:0;left:0;right:0;height:28px;background:#0055FF;opacity:.25}
+.ground-line{position:absolute;bottom:28px;left:0;right:0;height:1px;background:#0055FF;opacity:.4}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.4}
+.dark-zone{position:absolute;top:0;bottom:0;right:0;width:0;background:linear-gradient(90deg,transparent,#050311 40%);pointer-events:none;transition:width .5s}
+.flagpole{position:absolute;bottom:28px;display:flex;flex-direction:column;align-items:center;opacity:0;transition:opacity .5s}
+.flagpole-flag{width:14px;height:10px;background:#0055FF;margin-left:2px;margin-top:2px}
+.flagpole-pole{width:2px;height:80px;background:#4a5e70}
+.flagpole-base{width:10px;height:6px;background:#3a5060}
+.castle{position:absolute;bottom:28px;opacity:0;transition:opacity 1s}
+.char{position:absolute;bottom:28px;transition:left .05s linear}
+.callout{text-align:center;opacity:0;transition:opacity 1s;margin-top:20px}
+.callout.show{opacity:1}
+.callout-big{font-size:48px;font-weight:900;color:#4DE1FF;letter-spacing:-2px;line-height:1}
+.callout-small{font-size:11px;color:#4a5e70;letter-spacing:3px;text-transform:uppercase;margin-top:6px}
+</style>
+
+<p class="tag">290 Screens</p>
+<h1 class="heading">We out-designed Super Mario.</h1>
+<p class="sub">Super Mario Bros. has 211 unique screens.<br/>We designed 290.</p>
+
+<div class="hud">
+  <div class="hud-item">
+    <div class="hud-label">Mario</div>
+    <div class="hud-val mario" id="mario-count">0</div>
+  </div>
+  <div class="hud-item">
+    <div class="hud-label">Lendo SCF</div>
+    <div class="hud-val lendo" id="lendo-count">0</div>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+  <div class="sky"></div>
+  <div class="star" style="left:5%;top:15%"></div>
+  <div class="star" style="left:12%;top:8%"></div>
+  <div class="star" style="left:22%;top:20%"></div>
+  <div class="star" style="left:35%;top:10%"></div>
+  <div class="star" style="left:48%;top:18%"></div>
+  <div class="star" style="left:58%;top:7%"></div>
+  <div class="star" style="left:70%;top:14%"></div>
+  <div class="star" style="left:82%;top:9%"></div>
+  <div class="star" style="left:91%;top:19%"></div>
+  <div class="ground"></div>
+  <div class="ground-line"></div>
+  <div class="dark-zone" id="dark-zone"></div>
+
+  <div class="flagpole" id="flagpole" style="left:calc(72% - 1px)">
+    <div class="flagpole-flag"></div>
+    <div class="flagpole-pole"></div>
+    <div class="flagpole-base"></div>
+  </div>
+
+  <div class="castle" id="castle" style="left:74%">
+    <svg width="48" height="72" viewBox="0 0 48 72">
+      <rect x="2" y="0" width="8" height="10" rx="1" fill="#0055FF" opacity=".4"/>
+      <rect x="14" y="0" width="8" height="10" rx="1" fill="#0055FF" opacity=".4"/>
+      <rect x="26" y="0" width="8" height="10" rx="1" fill="#0055FF" opacity=".4"/>
+      <rect x="38" y="0" width="8" height="10" rx="1" fill="#0055FF" opacity=".4"/>
+      <rect x="0" y="8" width="48" height="64" rx="2" fill="#0055FF" opacity=".25"/>
+      <rect x="18" y="44" width="12" height="28" rx="6" fill="#090419" opacity=".8"/>
+      <rect x="6" y="20" width="10" height="10" rx="2" fill="#4DE1FF" opacity=".2"/>
+      <rect x="32" y="20" width="10" height="10" rx="2" fill="#4DE1FF" opacity=".2"/>
+    </svg>
+  </div>
+
+  <!-- Mario -->
+  <div class="char" id="mario-char" style="left:2%">
+    <canvas id="mario-canvas" width="16" height="24"></canvas>
+  </div>
+
+  <!-- Lendo -->
+  <div class="char" id="lendo-char" style="left:2%">
+    <canvas id="lendo-canvas" width="18" height="26"></canvas>
+  </div>
+</div>
+
+<div class="callout" id="callout">
+  <div class="callout-big">290 > 211</div>
+  <div class="callout-small">we out-designed a Nintendo classic</div>
+</div>
+
+<script>
+var MARIO_MAX=211, LENDO_MAX=290, DUR=7000;
+var timers=[], frame=0;
+
+function drawMario(step){
+  var c=document.getElementById('mario-canvas');
+  var ctx=c.getContext('2d');
+  ctx.clearRect(0,0,16,24);
+  var legOff=step%2===0?2:-2;
+  // Hat
+  ctx.fillStyle='#cc3300'; ctx.fillRect(3,0,10,4); ctx.fillRect(1,3,14,3);
+  // Face
+  ctx.fillStyle='#ffaa77'; ctx.beginPath(); ctx.roundRect(3,6,10,7,2); ctx.fill();
+  // Eyes
+  ctx.fillStyle='#222'; ctx.fillRect(5,8,2,2); ctx.fillRect(9,8,2,2);
+  // Body
+  ctx.fillStyle='#cc3300'; ctx.beginPath(); ctx.roundRect(2,13,12,6,2); ctx.fill();
+  // Legs alternating
+  ctx.fillStyle='#334466';
+  ctx.beginPath(); ctx.roundRect(2,19,5,5,1); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(9,19,5,5,1); ctx.fill();
+}
+
+function drawLendo(step){
+  var c=document.getElementById('lendo-canvas');
+  var ctx=c.getContext('2d');
+  ctx.clearRect(0,0,18,26);
+  var bobY=step%2===0?0:1;
+  // Body
+  ctx.fillStyle='#0055FF';
+  ctx.beginPath(); ctx.roundRect(3,13+bobY,12,8,3); ctx.fill();
+  // Head
+  ctx.beginPath(); ctx.arc(9,8+bobY,7,0,Math.PI*2); ctx.fill();
+  // Eyes
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(6.5,7+bobY,2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(11.5,7+bobY,2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#001a66'; ctx.beginPath(); ctx.arc(7,7.5+bobY,1,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(12,7.5+bobY,1,0,Math.PI*2); ctx.fill();
+  // Legs alternating
+  ctx.fillStyle='#0044cc';
+  var lLeg=step%2===0?2:-2, rLeg=step%2===0?-2:2;
+  ctx.beginPath(); ctx.roundRect(3+lLeg*0.5,21+bobY,4,5,2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(11+rLeg*0.5,21+bobY,4,5,2); ctx.fill();
+}
+
+function clearAll(){ timers.forEach(function(t){ clearInterval(t); clearTimeout(t); }); timers=[]; }
+
+function pct(n,max){ return 2+(n/max)*85; }
+
+function run(){
+  clearAll(); frame=0;
+  document.getElementById('mario-count').textContent='0';
+  document.getElementById('mario-count').className='hud-val mario';
+  document.getElementById('lendo-count').textContent='0';
+  document.getElementById('lendo-count').className='hud-val lendo';
+  document.getElementById('mario-char').style.left='2%';
+  document.getElementById('lendo-char').style.left='2%';
+  document.getElementById('flagpole').style.opacity='0';
+  document.getElementById('castle').style.opacity='0';
+  document.getElementById('dark-zone').style.width='0';
+  document.getElementById('callout').className='callout';
+  drawMario(0); drawLendo(0);
+
+  var mc=0, lc=0;
+  var animT=setInterval(function(){ frame++; drawMario(frame); drawLendo(frame); },150);
+  timers.push(animT);
+
+  var marioT=setInterval(function(){
+    if(mc>=MARIO_MAX){ clearInterval(marioT);
+      document.getElementById('flagpole').style.opacity='1';
+      document.getElementById('castle').style.opacity='1';
+      var t=setTimeout(function(){ document.getElementById('dark-zone').style.width='28%'; },400);
+      timers.push(t); return; }
+    mc++; document.getElementById('mario-count').textContent=mc;
+    document.getElementById('mario-char').style.left=pct(mc,LENDO_MAX)+'%';
+  }, DUR/MARIO_MAX);
+  timers.push(marioT);
+
+  var lendoT=setInterval(function(){
+    if(lc>=LENDO_MAX){ clearInterval(lendoT);
+      document.getElementById('lendo-count').className='hud-val beyond';
+      var t1=setTimeout(function(){
+        document.getElementById('callout').className='callout show';
+        var t2=setTimeout(function(){ run(); },4000); timers.push(t2);
+      },600); timers.push(t1); return; }
+    lc++; document.getElementById('lendo-count').textContent=lc;
+    document.getElementById('lendo-char').style.left=pct(lc,LENDO_MAX)+'%';
+    if(lc>MARIO_MAX) document.getElementById('lendo-count').className='hud-val beyond';
+  }, DUR/LENDO_MAX);
+  timers.push(lendoT);
+}
+
+setTimeout(function(){ run(); },600);
+</script>
